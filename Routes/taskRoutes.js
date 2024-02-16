@@ -19,3 +19,5 @@ router.delete('/tasks/:id', deleteTask);
 
 // Route for running Round Robin scheduling algorithm
 router.get('/roundrobin', runRoundRobin);
+
+module.exports = router
