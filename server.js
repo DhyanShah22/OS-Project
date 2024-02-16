@@ -5,7 +5,7 @@ const helmet = require('helmet')
 require('dotenv').config()
 
 const app = express()
-
+const taskRoutes = require('./Routes/taskRoutes')
 app.use(express.json())
 app.use(helmet())
 
@@ -13,6 +13,8 @@ app.use((req, res, next) => {
     console.log(req.path, req.method)
     next()
 })
+
+app.use('/api', taskRoutes)
 
 mongoose.connect(process.env.MONG_URI)
     .then(() => {
