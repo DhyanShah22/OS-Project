@@ -1,5 +1,4 @@
 const express = require('express')
-const mongoose = require('mongoose')
 const morgan = require('morgan')
 const helmet = require('helmet')
 require('dotenv').config()
@@ -7,6 +6,7 @@ require('dotenv').config()
 const app = express()
 const taskRoutes = require('./Routes/taskRoutes')
 app.use(express.json())
+app.use(express.urlencoded({extended: true}))
 app.use(helmet())
 
 app.use((req, res, next) => {
@@ -16,12 +16,12 @@ app.use((req, res, next) => {
 
 app.use('/api', taskRoutes)
 
-mongoose.connect(process.env.MONG_URI)
-    .then(() => {
+// mongoose.connect(process.env.MONG_URI)
+//     .then(() => {
         app.listen((process.env.PORT), () => {
             console.log('Connected to DB and listening to port', process.env.PORT)
         })
-    })
-    .catch((error) => {
-        console.log(error)
-    })
+    // })
+    // .catch((error) => {
+    //     console.log(error)
+    // })

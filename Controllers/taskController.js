@@ -1,84 +1,49 @@
 const express = require('express')
-const { default: mongoose} = require('mongoose')
 
-const Task = require('../Models/roundModels')
-
-const createTask = async (req, res) => {
+const runRoundRobin = (req, res) => {
     try {
-        const { name, burstTime } = req.body;
-        const task = new Task({ name, burstTime });
-        await task.save();
-        res.status(201).json(task);
-    } catch (err) {
-        console.error('Error creating task:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-};
+        const { arrivalTimes, burstTimes, quantum } = req.body;
 
-const getAllTasks = async (req, res) => {
-    try {
-        const tasks = await Task.find();
-        res.json(tasks);
-    } catch (err) {
-        console.error('Error fetching tasks:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-};
-
-const deleteTask = async (req, res) => {
-    try {
-        const taskId = req.params.id;
-        const task = await Task.findById(taskId);
-        if (!task) {
-            return res.status(404).json({ error: 'Task not found' });
+        if (!arrivalTimes || !burstTimes || !quantum || arrivalTimes.length !== burstTimes.length) {
+            return res.status(400).json({ error: 'Invalid input data' });
         }
-        await task.remove();
-        res.json({ message: 'Task deleted successfully' });
-    } catch (err) {
-        console.error('Error deleting task:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-};
 
-const runRoundRobin = async (req, res) => {
-    try {
-        // Retrieve all tasks from the database
-        const tasks = await Task.find();
+        let n = arrivalTimes.length;
+        let remainingBurstTime = [...burstTimes];
+        let completionTime = new Array(n).fill(0);
+        let currentTime = 0;
+        let queue = [];
 
-        // Define quantum time slice (adjust as needed)
-        const quantum = 3;
-
-        // Clone the tasks array to avoid mutating the original array
-        const remainingTasks = [...tasks];
-        const completedTasks = [];
-
-        // Initialize time and current index
-        let time = 0;
-        let currentIndex = 0;
-
-        while (remainingTasks.length > 0) {
-            const currentTask = remainingTasks[currentIndex];
-
-            // Execute the task for the quantum time slice
-            if (currentTask.burstTime > quantum) {
-                // If task's burst time is greater than the quantum, execute for quantum time slice
-                time += quantum;
-                currentTask.burstTime -= quantum;
-            } else {
-                // If task's burst time is less than or equal to the quantum, execute until completion
-                time += currentTask.burstTime;
-                currentTask.burstTime = 0;
-                currentTask.completionTime = time;
-                completedTasks.push(currentTask);
-                remainingTasks.splice(currentIndex, 1);
+        while (true) {
+            let done = true;
+            for (let i = 0; i < n; i++) {
+                if (arrivalTimes[i] <= currentTime) {
+                    if (remainingBurstTime[i] > 0) {
+                        done = false;
+                        let executionTime = Math.min(quantum, remainingBurstTime[i]);
+                        currentTime += executionTime;
+                        remainingBurstTime[i] -= executionTime;
+                        if (remainingBurstTime[i] === 0) {
+                            completionTime[i] = currentTime;
+                        } else {
+                            queue.push(i); // Add process index to the queue if not completed
+                        }
+                    }
+                } else {
+                    break; // No process is available at this time
+                }
             }
+            if (done && queue.length === 0)
+                break;
 
-            // Move to the next task
-            currentIndex = (currentIndex + 1) % remainingTasks.length;
+            if (queue.length > 0) {
+                currentTime++;
+                let nextProcessIndex = queue.shift();
+                queue.push(nextProcessIndex);
+            }
         }
 
-        // Return the completed tasks as the response
-        res.json(completedTasks);
+        res.json(completionTime);
     } catch (err) {
         console.error('Error running Round Robin:', err);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -86,8 +51,6 @@ const runRoundRobin = async (req, res) => {
 };
 
 module.exports = {
-    runRoundRobin,
-    deleteTask,
-    createTask,
-    getAllTasks
-}
+    runRoundRobin
+};
+
