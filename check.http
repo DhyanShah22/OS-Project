@@ -1,0 +1,9 @@
+POST http://localhost:7000/roundrobin
+
+Content-Type: application/json
+
+{
+    "arrivalTimes": [0, 1, 2, 3],
+    "burstTimes": [8, 4, 9, 5],
+    "quantum": 4
+}

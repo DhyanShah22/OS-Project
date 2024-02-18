@@ -1,56 +1,67 @@
-const express = require('express')
+let processes = [];
 
-const runRoundRobin = (req, res) => {
-    try {
-        const { arrivalTimes, burstTimes, quantum } = req.body;
+const addProcess = async (req, res) => {
+  const { arrivalTime, burstTime } = req.body;
+  const newProcess = {
+    id: processes.length + 1,
+    arrivalTime: parseInt(arrivalTime),
+    burstTime: parseInt(burstTime),
+    remainingTime: parseInt(burstTime),
+    startTime: null,
+    finishTime: null,
+    turnaroundTime: null,
+  };
+  processes.push(newProcess);
+  console.log(processes);
+  res.status(201).json({ process: newProcess });
+};
 
-        if (!arrivalTimes || !burstTimes || !quantum || arrivalTimes.length !== burstTimes.length) {
-            return res.status(400).json({ error: 'Invalid input data' });
+const runRoundRobin = async (req, res) => {
+  const quantum = req.body.quantum;
+  if (!quantum || quantum <= 0) {
+    return res.status(400).json({ error: 'Invalid quantum time' });
+  }
+
+  // Copy processes array to avoid modifying the original array
+  let remainingProcesses = [...processes];
+  let currentTime = 0;
+  let completedProcesses = [];
+  let totalTurnaroundTime = 0;
+
+  while (remainingProcesses.length > 0) {
+    let processExecuted = false;
+
+    for (let i = 0; i < remainingProcesses.length; i++) {
+      const currentProcess = remainingProcesses[i];
+
+      if (currentProcess.arrivalTime <= currentTime) {
+        // Execute the process for one quantum
+        const executionTime = Math.min(quantum, currentProcess.remainingTime);
+        currentProcess.remainingTime -= executionTime;
+        currentTime += executionTime;
+
+        if (currentProcess.remainingTime === 0) {
+          // Process completed
+          currentProcess.finishTime = currentTime;
+          currentProcess.turnaroundTime = currentProcess.finishTime - currentProcess.arrivalTime;
+          totalTurnaroundTime += currentProcess.turnaroundTime;
+          completedProcesses.push(currentProcess);
+          remainingProcesses.splice(i, 1);
+          processExecuted = true;
+          break;
         }
-
-        let n = arrivalTimes.length;
-        let remainingBurstTime = [...burstTimes];
-        let completionTime = new Array(n).fill(0);
-        let currentTime = 0;
-        let queue = [];
-
-        while (true) {
-            let done = true;
-            for (let i = 0; i < n; i++) {
-                if (arrivalTimes[i] <= currentTime) {
-                    if (remainingBurstTime[i] > 0) {
-                        done = false;
-                        let executionTime = Math.min(quantum, remainingBurstTime[i]);
-                        currentTime += executionTime;
-                        remainingBurstTime[i] -= executionTime;
-                        if (remainingBurstTime[i] === 0) {
-                            completionTime[i] = currentTime;
-                        } else {
-                            queue.push(i); // Add process index to the queue if not completed
-                        }
-                    }
-                } else {
-                    break; // No process is available at this time
-                }
-            }
-            if (done && queue.length === 0)
-                break;
-
-            if (queue.length > 0) {
-                currentTime++;
-                let nextProcessIndex = queue.shift();
-                queue.push(nextProcessIndex);
-            }
-        }
-
-        res.json(completionTime);
-    } catch (err) {
-        console.error('Error running Round Robin:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
+        processExecuted = true;
+      }
     }
+
+    // If no process executed in this iteration, move to next time unit
+    if (!processExecuted) {
+      currentTime++;
+    }
+  }
+
+  const averageTurnaroundTime = totalTurnaroundTime / completedProcesses.length;
+  res.json({ completedProcesses, averageTurnaroundTime });
 };
 
-module.exports = {
-    runRoundRobin
-};
-
+module.exports = { addProcess, runRoundRobin };
