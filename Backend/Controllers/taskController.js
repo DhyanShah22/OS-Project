@@ -66,7 +66,6 @@ const runRoundRobin = async (req, res) => {
 
   const averageTurnaroundTime = totalTurnaroundTime / completedProcesses.length;
 
-  // Send the completed processes and average turnaround time as response
   res.json({completedProcesses, averageTurnaroundTime})
 }
 
