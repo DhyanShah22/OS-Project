@@ -30,16 +30,16 @@ const runRoundRobin = async (req, res) => {
 
   while (remainingProcesses.length > 0) {
     let processExecuted = false;
-
+  
     for (let i = 0; i < remainingProcesses.length; i++) {
       const currentProcess = remainingProcesses[i];
-
+  
       if (currentProcess.arrivalTime <= currentTime) {
         // Execute the process for one quantum
         const executionTime = Math.min(quantum, currentProcess.remainingTime);
         currentProcess.remainingTime -= executionTime;
         currentTime += executionTime;
-
+  
         if (currentProcess.remainingTime === 0) {
           // Process completed
           currentProcess.finishTime = currentTime;
@@ -53,12 +53,13 @@ const runRoundRobin = async (req, res) => {
         processExecuted = true;
       }
     }
-
-    // If no process executed in this iteration, move to next time unit
-    if (!processExecuted) {
+  
+    // Increment currentTime only when a process is executed
+    if (processExecuted) {
       currentTime++;
     }
   }
+  
 
   const averageTurnaroundTime = totalTurnaroundTime / completedProcesses.length;
   res.json({ completedProcesses, averageTurnaroundTime });
