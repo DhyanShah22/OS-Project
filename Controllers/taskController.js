@@ -22,7 +22,6 @@ const runRoundRobin = async (req, res) => {
     return res.status(400).json({ error: 'Invalid quantum time' });
   }
 
-  // Copy processes array to avoid modifying the original array
   let remainingProcesses = [...processes];
   let currentTime = 0;
   let completedProcesses = [];
@@ -35,13 +34,11 @@ const runRoundRobin = async (req, res) => {
       const currentProcess = remainingProcesses[i];
   
       if (currentProcess.arrivalTime <= currentTime) {
-        // Execute the process for one quantum
         const executionTime = Math.min(quantum, currentProcess.remainingTime);
         currentProcess.remainingTime -= executionTime;
         currentTime += executionTime;
   
         if (currentProcess.remainingTime === 0) {
-          // Process completed
           currentProcess.finishTime = currentTime;
           currentProcess.turnaroundTime = currentProcess.finishTime - currentProcess.arrivalTime;
           totalTurnaroundTime += currentProcess.turnaroundTime;
@@ -54,7 +51,6 @@ const runRoundRobin = async (req, res) => {
       }
     }
   
-    // Increment currentTime only when a process is executed
     if (processExecuted) {
       currentTime++;
     }
