@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banker's Algorithm Frontend</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Banker's Algorithm</h1>
+        <div>
+            <h2>Request Resources</h2>
+            <div>
+                <label for="processId">Process ID:</label>
+                <input type="number" id="processId" min="0" value="0">
+            </div>
+            <div>
+                <label for="resource1">Resource 1:</label>
+                <input type="number" id="resource1" min="0" value="0">
+            </div>
+            <div>
+                <label for="resource2">Resource 2:</label>
+                <input type="number" id="resource2" min="0" value="0">
+            </div>
+            <div>
+                <label for="resource3">Resource 3:</label>
+                <input type="number" id="resource3" min="0" value="0">
+            </div>
+            <button onclick="requestResources()">Request Resources</button>
+        </div>
+        <div>
+            <h2>Release Resources</h2>
+            <div>
+                <label for="releaseProcessId">Process ID:</label>
+                <input type="number" id="releaseProcessId" min="0" value="0">
+            </div>
+            <div>
+                <label for="release1">Resource 1:</label>
+                <input type="number" id="release1" min="0" value="0">
+            </div>
+            <div>
+                <label for="release2">Resource 2:</label>
+                <input type="number" id="release2" min="0" value="0">
+            </div>
+            <div>
+                <label for="release3">Resource 3:</label>
+                <input type="number" id="release3" min="0" value="0">
+            </div>
+            <button onclick="releaseResources()">Release Resources</button>
+        </div>
+        <div id="message" class="alert"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

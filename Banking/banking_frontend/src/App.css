@@ -1,0 +1,74 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.request-section,
+.release-section {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  border: 2px solid #333;
+  margin-bottom: 20px;
+  width: 45%; /* Adjust the width as needed */
+}
+
+.request-section h2,
+.release-section h2 {
+  color: #333;
+}
+
+.request-section form,
+.release-section form {
+  display: flex;
+  flex-direction: column;
+}
+
+.request-section form input,
+.release-section form input {
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.request-section form button,
+.release-section form button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.request-section form button:hover,
+.release-section form button:hover {
+  background-color: #0056b3;
+}
+
+.success-green {
+  color: green;
+  margin-top: 10px;
+}
+
+.error-red {
+  color: red;
+  margin-top: 10px;
+}
+
+.images {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap; /* Allow flex items to wrap to the next line */
+  margin-top: 20px; /* Add margin-top to create space between tables and images */
+}
+
+.images img {
+  width: 200px;
+  height: auto;
+  margin: 10px; /* Add margin around each image */
+}

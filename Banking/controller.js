@@ -11,9 +11,15 @@ let maxNeededResources = [
 ];
 
 const requestResource = async (req, res) => {
-    const { processId, resourcesRequested } = req.body; // Corrected typo here
+    const { processId, resourcesRequested } = req.body; 
 
     try {
+
+        console.log("Resources requested:", resourcesRequested)
+
+        if (!Array.isArray(resourcesRequested)) {
+            throw new Error('Requested resources must be an array.');
+        }
 
         if (processId < 0 || processId >= allocatedResources.length) {
             throw new Error('Invalid processId.');
@@ -49,6 +55,18 @@ const releaseResource = async(req, res) => {
     const { processId, resourcesReleased } = req.body;
 
     try {
+
+        console.log("Resources released:", resourcesReleased)
+
+
+        if (!resourcesReleased || !Array.isArray(resourcesReleased)) {
+            throw new Error('Invalid or missing resourcesReleased data.');
+        }
+
+        if (resourcesReleased.length !== availableResources.length) {
+            throw new Error('Number of released resources does not match the expected length.');
+        }
+        
         for (let i = 0; i < resourcesReleased.length; i++) {
             if (resourcesReleased[i] > allocatedResources[processId][i]) {
                 throw new Error('Released resources exceed allocated resources.');
