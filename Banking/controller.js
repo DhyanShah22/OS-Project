@@ -10,34 +10,40 @@ let maxNeededResources = [
     [9, 0, 2]
 ];
 
-const requestResource = async (req,res) => {
-    const {processId, resourceRequested} = req.body 
+const requestResource = async (req, res) => {
+    const { processId, resourcesRequested } = req.body; // Corrected typo here
 
     try {
-        for (let i=0; i < resourceRequested.length; i++) {
-            if(resourceRequested[i] > maxNeededResources[processId][i]) {
-                throw new Error('Requested resources exceed maximum resources.')
-            }
-    }
 
-    for(let i = 0; i < resourceRequested.length; i++) {
-        if (resourceRequested[i] > availableResources[i]) {
-            throw new Error('Requested resource exceeds available resources.')
+        if (processId < 0 || processId >= allocatedResources.length) {
+            throw new Error('Invalid processId.');
         }
-    }
 
-    for(let i = 0; i < resourceRequested.length; i++) {
-        allocatedResources[processId][i] += resourceRequested[i]
-        availableResources[i] -= resourceRequested[i]
-    }
+        for (let i = 0; i < resourcesRequested.length; i++) {
+            if(resourcesRequested[i] > maxNeededResources[processId][i]) {
+                throw new Error('Requested resources exceed maximum resources.');
+            }
+        }
 
-    return res.status(200).json({message: 'Successfully requested resources.'})
+        for(let i = 0; i < resourcesRequested.length; i++) {
+            if (resourcesRequested[i] > availableResources[i]) {
+                throw new Error('Requested resource exceeds available resources.');
+            }
+        }
+
+        for(let i = 0; i < resourcesRequested.length; i++) {
+            allocatedResources[processId][i] += resourcesRequested[i];
+            availableResources[i] -= resourcesRequested[i];
+        }
+
+        return res.status(200).json({ message: 'Successfully requested resources.' });
         
     } catch (error) {
         console.log(`Error in requesting resource: ${error}`);
-        return res.status(400).json({error: error.message })
+        return res.status(400).json({ error: error.message });
     }
 }
+
 
 const releaseResource = async(req, res) => {
     const { processId, resourcesReleased } = req.body;
