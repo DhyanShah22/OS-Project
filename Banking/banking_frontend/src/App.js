@@ -5,8 +5,8 @@ import successImage from './success.png';
 import failureImage from './failure.jpg';
 
 function App() {
-  const [request, setRequest] = useState({ processId: '', resource1: '', resource2: '', resource3: '' });
-  const [release, setRelease] = useState({ processId: '', release1: '', release2: '', release3: '' });
+  const [request, setRequest] = useState({ processId: '', resources: ['', '', ''] });
+  const [release, setRelease] = useState({ processId: '', resources: ['', '', ''] });
   const [requestSuccess, setRequestSuccess] = useState('');
   const [releaseSuccess, setReleaseSuccess] = useState('');
   const [requestError, setRequestError] = useState('');
@@ -17,10 +17,11 @@ function App() {
     try {
       await axios.post('http://localhost:9000/api/request', {
         processId: request.processId,
-        resourcesRequested: [parseInt(request.resource1), parseInt(request.resource2), parseInt(request.resource3)]
+        resourcesRequested: request.resources.map(resource => parseInt(resource))
       });
-      setRequestSuccess(`Process ${request.processId} - Success Requesting ${request.resource1} ${request.resource2} ${request.resource3}`);
+      setRequestSuccess(`Process ${request.processId} - Success Requesting ${request.resources.join(' ')}`);
       setRequestError('');
+      setRequest({ processId: '', resources: ['', '', ''] }); // Clear input fields after successful submission
       setTimeout(() => setRequestSuccess(''), 5000); // Clear success message after 5 seconds
     } catch (error) {
       console.error('Error requesting resources:', error);
@@ -35,10 +36,11 @@ function App() {
     try {
       await axios.post('http://localhost:9000/api/release', {
         processId: release.processId,
-        resourcesReleased: [parseInt(release.release1), parseInt(release.release2), parseInt(release.release3)]
+        resourcesReleased: release.resources.map(resource => parseInt(resource))
       });
-      setReleaseSuccess(`Process ${release.processId} - Success Releasing ${release.release1} ${release.release2} ${release.release3}`);
+      setReleaseSuccess(`Process ${release.processId} - Success Releasing ${release.resources.join(' ')}`);
       setReleaseError('');
+      setRelease({ processId: '', resources: ['', '', ''] }); // Clear input fields after successful submission
       setTimeout(() => setReleaseSuccess(''), 5000); // Clear success message after 5 seconds
     } catch (error) {
       console.error('Error releasing resources:', error);
@@ -48,42 +50,71 @@ function App() {
     }
   };
 
+  const handleSetResources = async () => {
+    try {
+      const availableResources = prompt('Enter available resources (comma separated)');
+      const allocatedResources = prompt('Enter allocated resources (comma separated)');
+      const maxNeededResources = prompt('Enter maximum needed resources (comma separated)');
+
+      await axios.post('http://localhost:9000/api/set-resources', {
+        available: availableResources.split(',').map(resource => parseInt(resource)),
+        allocated: allocatedResources.split(',').map(resource => parseInt(resource)),
+        maxNeeded: maxNeededResources.split(',').map(resource => parseInt(resource))
+      });
+
+      alert('Resources set successfully!');
+    } catch (error) {
+      console.error('Error setting resources:', error);
+      alert('Failed to set resources. Please try again.');
+    }
+  };
+
   return (
     <div className='image'>
-          <div className="container">
-      <div className="request-section">
-        <h2>Banker's Algorithm for Deadlock - Request Resources</h2>
-        <form onSubmit={handleRequestSubmit}>
-          <input type="text" placeholder="Process ID" value={request.processId} onChange={(e) => setRequest({ ...request, processId: e.target.value })} />
-          <input type="text" placeholder="Resource 1" value={request.resource1} onChange={(e) => setRequest({ ...request, resource1: e.target.value })} />
-          <input type="text" placeholder="Resource 2" value={request.resource2} onChange={(e) => setRequest({ ...request, resource2: e.target.value })} />
-          <input type="text" placeholder="Resource 3" value={request.resource3} onChange={(e) => setRequest({ ...request, resource3: e.target.value })} />
-          <button type="submit">Request</button>
-        </form>
-        {requestSuccess && <div className={`success success-green`}>{requestSuccess}</div>}
-        {requestError && <div className={`error error-red`}>{requestError}</div>}
+      <div className="container">
+        <div className="request-section">
+          <h2>Banker's Algorithm for Deadlock - Request Resources</h2>
+          <form onSubmit={handleRequestSubmit}>
+            <input type="text" placeholder="Process ID" value={request.processId} onChange={(e) => setRequest({ ...request, processId: e.target.value })} />
+            {[1, 2, 3].map((_, index) => (
+              <input key={index} type="text" placeholder={`Resource ${index + 1}`} value={request.resources[index]} onChange={(e) => {
+                const updatedResources = [...request.resources];
+                updatedResources[index] = e.target.value;
+                setRequest({ ...request, resources: updatedResources });
+              }} />
+            ))}
+            <button type="submit">Request</button>
+          </form>
+          {requestSuccess && <div className={`success success-green`}>{requestSuccess}</div>}
+          {requestError && <div className={`error error-red`}>{requestError}</div>}
+        </div>
+        <div className="release-section">
+          <h2>Banker's Algorithm for Deadlock - Release Resources</h2>
+          <form onSubmit={handleReleaseSubmit}>
+            <input type="text" placeholder="Process ID" value={release.processId} onChange={(e) => setRelease({ ...release, processId: e.target.value })} />
+            {[1, 2, 3].map((_, index) => (
+              <input key={index} type="text" placeholder={`Resource ${index + 1}`} value={release.resources[index]} onChange={(e) => {
+                const updatedResources = [...release.resources];
+                updatedResources[index] = e.target.value;
+                setRelease({ ...release, resources: updatedResources });
+              }} />
+            ))}
+            <button type="submit">Release</button>
+          </form>
+          {releaseSuccess && <div className={`success success-green`}>{releaseSuccess}</div>}
+          {releaseError && <div className={`error error-red`}>{releaseError}</div>}
+        </div>
       </div>
-      <div className="release-section">
-        <h2>Banker's Algorithm for Deadlock - Release Resources</h2>
-        <form onSubmit={handleReleaseSubmit}>
-          <input type="text" placeholder="Process ID" value={release.processId} onChange={(e) => setRelease({ ...release, processId: e.target.value })} />
-          <input type="text" placeholder="Resource 1" value={release.release1} onChange={(e) => setRelease({ ...release, release1: e.target.value })} />
-          <input type="text" placeholder="Resource 2" value={release.release2} onChange={(e) => setRelease({ ...release, release2: e.target.value })} />
-          <input type="text" placeholder="Resource 3" value={release.release3} onChange={(e) => setRelease({ ...release, release3: e.target.value })} />
-          <button type="submit">Release</button>
-        </form>
-        {releaseSuccess && <div className={`success success-green`}>{releaseSuccess}</div>}
-        {releaseError && <div className={`error error-red`}>{releaseError}</div>}
+      <div className="set-resources">
+        <button onClick={handleSetResources}>Set Resources</button>
       </div>
-    </div>
-    <div className="images">
+      <div className="images">
         {requestSuccess && <img src={successImage} alt="Request Success" />}
         {requestError && <img src={failureImage} alt="Request Failure" />}
         {releaseSuccess && <img src={successImage} alt="Release Success" />}
         {releaseError && <img src={failureImage} alt="Release Failure" />}
       </div>
     </div>
-
   );
 }
 

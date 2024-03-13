@@ -1,14 +1,6 @@
-let availableResources = [3, 3, 2]; 
-let allocatedResources = [
-    [0, 0, 1],
-    [2, 1, 0],
-    [1, 2, 1]
-];
-let maxNeededResources = [
-    [7, 5, 3],
-    [3, 2, 2],
-    [9, 0, 2]
-];
+let availableResources = [];
+let allocatedResources = [];
+let maxNeededResources = [];
 
 const requestResource = async (req, res) => {
     const { processId, resourcesRequested } = req.body; 
@@ -85,8 +77,18 @@ const releaseResource = async(req, res) => {
     }
 }
 
+const setResources = (req, res) => {
+    const { available, allocated, maxNeeded } = req.body;
+
+    availableResources = available;
+    allocatedResources = allocated;
+    maxNeededResources = maxNeeded;
+
+    return res.status(200).json({ message: 'Resources set successfully.' });
+}
 
 module.exports = {
     requestResource,
-    releaseResource
+    releaseResource,
+    setResources
 }
