@@ -1,8 +1,15 @@
+.heading {
+  text-align: center;
+  font-size: 45px;
+  color: #333; /* Adjust the color as needed */
+  margin-top: 20px;
+  font-family: Arial, sans-serif; /* Adjust the font family as needed */
+}
+
 .container {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  padding-left: 50px;
+  justify-content: center; /* Center the containers horizontally */
   margin-top: 20px;
 }
 
@@ -12,9 +19,8 @@
   padding: 20px;
   border-radius: 5px;
   border: 2px solid #333;
-  margin-bottom: 20px;
-  margin: 10px;
-  width: 45%; 
+  margin: 0 10px; /* Adjust margin as needed */
+  width: 45%;
 }
 
 .request-section h2,
@@ -65,12 +71,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap; 
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 .images img {
-  width: 400px;
-  height: auto;
-  margin: 10px; /* Add margin around each image */
+  width: 500px;
+  height: 500px;
+  margin: 10px;
 }
