@@ -1,7 +1,8 @@
 .container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  padding-left: 50px;
   margin-top: 20px;
 }
 
@@ -12,6 +13,7 @@
   border-radius: 5px;
   border: 2px solid #333;
   margin-bottom: 20px;
+  margin: 10px;
   width: 45%; /* Adjust the width as needed */
 }
 
@@ -68,7 +70,7 @@
 }
 
 .images img {
-  width: 200px;
+  width: 400px;
   height: auto;
   margin: 10px; /* Add margin around each image */
 }

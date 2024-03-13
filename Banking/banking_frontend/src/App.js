@@ -49,7 +49,8 @@ function App() {
   };
 
   return (
-    <div className="container">
+    <div className='image'>
+          <div className="container">
       <div className="request-section">
         <h2>Banker's Algorithm for Deadlock - Request Resources</h2>
         <form onSubmit={handleRequestSubmit}>
@@ -74,13 +75,15 @@ function App() {
         {releaseSuccess && <div className={`success success-green`}>{releaseSuccess}</div>}
         {releaseError && <div className={`error error-red`}>{releaseError}</div>}
       </div>
-      <div className="images">
+    </div>
+    <div className="images">
         {requestSuccess && <img src={successImage} alt="Request Success" />}
         {requestError && <img src={failureImage} alt="Request Failure" />}
         {releaseSuccess && <img src={successImage} alt="Release Success" />}
         {releaseError && <img src={failureImage} alt="Release Failure" />}
       </div>
     </div>
+
   );
 }
 
