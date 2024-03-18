@@ -52,22 +52,70 @@ function App() {
 
   const handleSetResources = async () => {
     try {
-      const availableResources = prompt('Enter available resources (comma separated)');
-      const allocatedResources = prompt('Enter allocated resources (comma separated)');
-      const maxNeededResources = prompt('Enter maximum needed resources (comma separated)');
-
+      // Step 1: Prompt for the number of resources
+      const numOfResources = prompt('Enter the number of resources:');
+      if (!numOfResources || isNaN(numOfResources)) {
+        throw new Error('Invalid number of resources');
+      }
+  
+      const availableResources = [];
+      const allocatedResources = [];
+      const maxNeededResources = [];
+      
+      // Step 2: Prompt for the number of instances for each resource
+      for (let i = 0; i < numOfResources; i++) {
+        const instanceCount = prompt(`Enter the number of instances for resource ${i + 1}:`);
+        if (!instanceCount || isNaN(instanceCount)) {
+          throw new Error('Invalid number of instances');
+        }
+        availableResources.push(parseInt(instanceCount));
+        allocatedResources.push([]);
+        maxNeededResources.push([]);
+      }
+  
+      // Step 3: Prompt for the number of processes
+      const numOfProcesses = prompt('Enter the number of processes:');
+      if (!numOfProcesses || isNaN(numOfProcesses)) {
+        throw new Error('Invalid number of processes');
+      }
+  
+      // Step 4: Prompt for allocated and maximum needed resources for each process
+      for (let i = 0; i < numOfProcesses; i++) {
+        const allocated = [];
+        const maxNeeded = [];
+        
+        for (let j = 0; j < numOfResources; j++) {
+          const allocatedCount = prompt(`Enter allocated resources for process ${i + 1}, resource ${j + 1}:`);
+          if (!allocatedCount || isNaN(allocatedCount)) {
+            throw new Error('Invalid allocated resources');
+          }
+          allocated.push(parseInt(allocatedCount));
+  
+          const maxNeededCount = prompt(`Enter maximum needed resources for process ${i + 1}, resource ${j + 1}:`);
+          if (!maxNeededCount || isNaN(maxNeededCount)) {
+            throw new Error('Invalid maximum needed resources');
+          }
+          maxNeeded.push(parseInt(maxNeededCount));
+        }
+  
+        allocatedResources[i] = [...allocated];
+        maxNeededResources[i] = [...maxNeeded];
+      }
+  
+      // Send the data to the server
       await axios.post('http://localhost:9000/api/set-resources', {
-        available: availableResources.split(',').map(resource => parseInt(resource)),
-        allocated: allocatedResources.split(',').map(resource => parseInt(resource)),
-        maxNeeded: maxNeededResources.split(',').map(resource => parseInt(resource))
+        available: availableResources,
+        allocated: allocatedResources,
+        maxNeeded: maxNeededResources
       });
-
+  
       alert('Resources set successfully!');
     } catch (error) {
       console.error('Error setting resources:', error);
       alert('Failed to set resources. Please try again.');
     }
   };
+  
 
   return (
     <div className='image'>
