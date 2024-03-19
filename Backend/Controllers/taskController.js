@@ -1,72 +1,66 @@
 let processes = [];
+let quantum = 0;
 
-const addProcess = async (req,res) => {
-  const {arrivalTime, burstTime} = req.body
+const addProcess = (req, res) => {
+  const { burstTime, arrivalTime } = req.body;
+  const newProcess = { burstTime, arrivalTime, originalBurstTime:burstTime };
+  processes.push(newProcess);
+  res.json({ success: true, message: 'Process added successfully' });
+};
 
-  const newProcess = {
-    id: processes.length +1,
-    arrivalTime: parseInt(arrivalTime),
-    burstTime: parseInt(burstTime),
-    remainingTime: parseInt(burstTime),
-    startTime: null,
-    finishTime: null,
-    turnaroundTime: null,
-  }
+const setQuantum = (req, res) => {
+  const { quantumValue } = req.body;
+  quantum = quantumValue;
+  res.json({ success: true, message: 'Quantum set successfully' });
+};
 
-  processes.push(newProcess)
+const calculateProcesses = (req, res) => {
+  try {
+    processes.sort((a, b) => a.arrivalTime - b.arrivalTime);
 
-  res.status(201).json({ process: newProcess})
-}
+    let currentTime = 0;
+    let remainingProcesses = [...processes];
+    let completedProcesses = [];
+    let turnaroundSum = 0;
+    let waitingSum = 0;
 
-const runRoundRobin = async (req, res) => {
-  const quantum = req.body.quantum 
-  if (!quantum || quantum<=0)
-  {
-    return res.status(400).json({error: 'Invalid Quantum time'})
-  }
+    while (remainingProcesses.length > 0) {
+      let process = remainingProcesses.shift();
+      let executionTime = Math.min(process.burstTime, quantum);
+      
+      process.burstTime -= executionTime;
+      currentTime += executionTime;
 
-  let remainingProcesses = [...processes]
-  let currentTime = 0
-  let completedProcesses = []
-  let totalTurnaroundTime = 0
-
-  while (remainingProcesses.length > 0) {
-    let processExecuted = false
-
-    for (let i=0; i < remainingProcesses.length; i++) {
-      const currentProcess = remainingProcesses[i]
-
-      if(currentProcess.arrivalTime <= currentTime) {
-        const executionTime = Math.min(quantum, currentProcess.remainingTime)
-        currentProcess.remainingTime -= executionTime
-        currentTime += executionTime
-
-        if(currentProcess.remainingTime === 0) {
-          currentProcess.finishTime = currentTime;
-          currentProcess.turnaroundTime = currentProcess.finishTime - currentProcess.arrivalTime;
-          totalTurnaroundTime += currentProcess.turnaroundTime;
-        
-
-        completedProcesses.push(currentProcess)
-        remainingProcesses.splice(i, 1);
-
-        processExecuted = true
-
-        break;
-      }
-
-      processExecuted = true;
+      if (process.burstTime === 0) {
+        process.burstTime = process.originalBurstTime
+        process.completionTime = currentTime;
+        process.turnaroundTime = process.completionTime - process.arrivalTime;
+        process.waitingTime = process.turnaroundTime - process.originalBurstTime;
+        turnaroundSum += process.turnaroundTime;
+        waitingSum += process.waitingTime;
+        completedProcesses.push(process);
+      } else {
+        remainingProcesses.push(process);
       }
     }
-        
-        if(processExecuted) {
-          currentTime++
-        }
+
+    const avgTurnaroundTime = turnaroundSum / completedProcesses.length;
+    const avgWaitingTime = waitingSum / completedProcesses.length;
+
+    res.json({
+      success: true,
+      processes: completedProcesses,
+      avgTurnaroundTime,
+      avgWaitingTime,
+    });
+  } catch (error) {
+    console.error('Error calculating processes:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
+};
 
-  const averageTurnaroundTime = totalTurnaroundTime / completedProcesses.length;
-
-  res.json({completedProcesses, averageTurnaroundTime})
-}
-
-module.exports = { addProcess, runRoundRobin };
+module.exports = {
+  addProcess,
+  setQuantum,
+  calculateProcesses,
+};

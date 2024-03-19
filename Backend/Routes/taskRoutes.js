@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { addProcess, runRoundRobin } = require('../Controllers/taskController');
+const {
+    addProcess,
+    setQuantum,
+    calculateProcesses
+} = require('../Controllers/taskController')
 
-router.post('/add-process', addProcess);
-router.post('/run-round-robin', runRoundRobin);
+router.post('/process', addProcess);
+router.post('/process/setQuantum', setQuantum)
+router.get('/process/calculate', calculateProcesses);
 
 module.exports = router;
