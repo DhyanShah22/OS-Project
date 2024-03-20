@@ -47,7 +47,7 @@ const calculateProcesses = (req, res) => {
     const avgTurnaroundTime = turnaroundSum / completedProcesses.length;
     const avgWaitingTime = waitingSum / completedProcesses.length;
 
-    res.json({
+    res.status(200).json({
       success: true,
       processes: completedProcesses,
       avgTurnaroundTime,
