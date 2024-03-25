@@ -6,6 +6,9 @@ require('dotenv').config();
 
 const app = express();
 
+const router = require('./Routes/scanRoute');
+const { handleRequest } = require('./Controllers/scanScheduling');
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
@@ -16,6 +19,8 @@ app.use((req, res, next) => {
     console.log(req.path, req.method);
     next();
 });
+
+app.use('/api', router)
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
